@@ -1,14 +1,19 @@
 import chromadb
 import json
 from tqdm import tqdm
+import os
 
-client = chromadb.PersistentClient(path="./chroma_db")
+# Get the script directory to make paths work from anywhere
+script_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(script_dir)
+
+client = chromadb.PersistentClient(path=os.path.join(backend_dir, "chroma_db"))
 
 # Check if already loaded
 try:
-    req_collection = client.get_collection("requirements")
-    print(f"✓ Requirements already loaded ({req_collection.count()} entries)")
-    
+    existing_collection = client.get_collection("requirements")
+    print(f"✓ Requirements already loaded ({existing_collection.count()} entries)")
+
     # Ask if user wants to reload
     reload = input("Reload requirements? (y/n): ")
     if reload.lower() != 'y':
@@ -16,10 +21,13 @@ try:
     client.delete_collection("requirements")
     print("Deleted old requirements collection")
 except:
-    print("Creating new requirements collection...")
+    pass
+
+print("Creating new requirements collection...")
 
 # Load the JSON
-with open('vector db/course_data/cs_requirements.json', 'r') as f:
+json_path = os.path.join(script_dir, 'course_data', 'cs_requirements.json')
+with open(json_path, 'r') as f:
     data = json.load(f)
 
 # Extract CS requirements (it's in an array with one object)
@@ -33,99 +41,84 @@ ids = []
 
 print("Processing CS requirements...")
 
-# 1. General Requirements
-if 'general_requirements' in cs_data:
-    for category, info in cs_data['general_requirements'].items():
-        text_parts = [f"CS Major - General Requirement: {category.replace('_', ' ').title()}"]
+def process_requirement_section(section_data, category_name, display_prefix):
+    """
+    Generalized function to process any requirement section.
+    Automatically handles single requirements vs multiple options.
+    """
+    for subcategory, info in section_data.items():
+        text_parts = [f"CS Major - {display_prefix}: {subcategory.replace('_', ' ').title()}"]
         text_parts.append(f"Total Credits: {info['total_credits']}")
-        
-        # Add requirement details if they exist
+
         if info['requirements']:
-            for req in info['requirements']:
-                req_type = req['requirement_type']
-                courses = req.get('classes', req.get('courses', []))
-                
-                if req_type == "AND":
-                    text_parts.append(f"Must take ALL of: {', '.join(courses)}")
-                elif req_type == "OR":
-                    text_parts.append(f"Must take ONE of: {', '.join(courses)}")
-                elif req_type == "ANY":
-                    text_parts.append(f"Can take any from: {', '.join(courses[:10])}...")  # Truncate if too long
-        
+            # Check if there are multiple requirement_ids (mutually exclusive options)
+            req_ids = set(req['requirement_id'] for req in info['requirements'])
+
+            if len(req_ids) > 1:
+                # Multiple options - student chooses ONE
+                text_parts.append("Choose ONE of the following options:")
+                for req in info['requirements']:
+                    req_type = req['requirement_type']
+                    courses = req.get('classes', req.get('courses', []))
+                    option_num = req['requirement_id'] + 1
+
+                    if req_type == "AND":
+                        text_parts.append(f"  Option {option_num}: Take ALL of {', '.join(courses)}")
+                    elif req_type == "OR":
+                        text_parts.append(f"  Option {option_num}: Take ONE of {', '.join(courses)}")
+                    elif req_type == "ANY":
+                        text_parts.append(f"  Option {option_num}: Take any from {', '.join(courses[:10])}...")
+            else:
+                # Single requirement path (or same requirement_id for all)
+                for req in info['requirements']:
+                    req_type = req['requirement_type']
+                    courses = req.get('classes', req.get('courses', []))
+
+                    if req_type == "AND":
+                        text_parts.append(f"Must take ALL of: {', '.join(courses)}")
+                    elif req_type == "OR":
+                        text_parts.append(f"Must take ONE of: {', '.join(courses)}")
+                    elif req_type == "ANY":
+                        text_parts.append(f"Can take any from: {', '.join(courses[:10])}...")
+
         # Add notes
-        if info['notes']:
+        if info.get('notes'):
             text_parts.append(f"Notes: {info['notes']}")
-        
+
         text = "\n".join(text_parts)
-        
+
         documents.append(text)
         metadatas.append({
             "major": "CS",
-            "category": "general",
-            "subcategory": category,
+            "category": category_name,
+            "subcategory": subcategory,
             "credits": info['total_credits']
         })
-        ids.append(f"CS_general_{category}")
+        ids.append(f"CS_{category_name}_{subcategory}")
+
+# 1. General Requirements
+if 'general_requirements' in cs_data:
+    process_requirement_section(
+        cs_data['general_requirements'],
+        "general",
+        "General Requirement"
+    )
 
 # 2. Math and Science
 if 'math_and_science' in cs_data:
-    for subject, info in cs_data['math_and_science'].items():
-        text_parts = [f"CS Major - {subject.title()} Requirement"]
-        text_parts.append(f"Total Credits: {info['total_credits']}")
-        
-        if info['requirements']:
-            for req in info['requirements']:
-                req_type = req['requirement_type']
-                courses = req.get('classes', req.get('courses', []))
-                
-                if req_type == "AND":
-                    text_parts.append(f"Must take ALL of: {', '.join(courses)}")
-                elif req_type == "OR":
-                    text_parts.append(f"Must take ONE of: {', '.join(courses)}")
-        
-        if info.get('notes'):
-            text_parts.append(f"Notes: {info['notes']}")
-        
-        text = "\n".join(text_parts)
-        
-        documents.append(text)
-        metadatas.append({
-            "major": "CS",
-            "category": "math_science",
-            "subcategory": subject,
-            "credits": info['total_credits']
-        })
-        ids.append(f"CS_math_science_{subject}")
+    process_requirement_section(
+        cs_data['math_and_science'],
+        "math_science",
+        "Math/Science Requirement"
+    )
 
 # 3. Computer Science Core
 if 'computer_science' in cs_data:
-    for area, info in cs_data['computer_science'].items():
-        text_parts = [f"CS Major - {area.replace('_', ' ').title()}"]
-        text_parts.append(f"Total Credits: {info['total_credits']}")
-        
-        if info['requirements']:
-            for req in info['requirements']:
-                req_type = req['requirement_type']
-                courses = req.get('classes', req.get('courses', []))
-                
-                if req_type == "AND":
-                    text_parts.append(f"Option {req['requirement_id'] + 1}: Must take ALL of: {', '.join(courses)}")
-                elif req_type == "OR":
-                    text_parts.append(f"Must take ONE of: {', '.join(courses)}")
-        
-        if info.get('notes'):
-            text_parts.append(f"Notes: {info['notes']}")
-        
-        text = "\n".join(text_parts)
-        
-        documents.append(text)
-        metadatas.append({
-            "major": "CS",
-            "category": "computer_science",
-            "subcategory": area,
-            "credits": info['total_credits']
-        })
-        ids.append(f"CS_cs_{area}")
+    process_requirement_section(
+        cs_data['computer_science'],
+        "computer_science",
+        "Computer Science Requirement"
+    )
 
 # Add to ChromaDB
 print(f"\nAdding {len(documents)} requirement entries to ChromaDB...")
