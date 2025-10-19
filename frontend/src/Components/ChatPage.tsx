@@ -41,23 +41,7 @@ const ChatPage = () => {
 
   const sendToAPI = async (userMessage: string): Promise<string> => {
     try {
-      // TODO: Replace with actual API endpoint
-      const API_ENDPOINT = '';
-      
-      if (!API_ENDPOINT) {
-        // Fallback to simulated response if no endpoint is configured
-        const aiResponses = [
-          "I can totally help with that User! I can see that you've completed the CSE 12X series as well as your math requirements, which opens the doors to many classes you can take this year. Are there any classes you have planned to take or requirements you want to complete? I can accommodate many of your preferences!",
-          "That sounds like a great plan! Let me help you create a balanced schedule that meets your academic goals while keeping your workload manageable.",
-          "I understand you want to complete CSE 332 and CSE 421 this year while maintaining a light workload. Let me help you plan a balanced schedule that meets your requirements.",
-          "Great question! Based on your academic progress, I can suggest several options that would work well for your sophomore year planning.",
-          "I'd be happy to help you plan your course schedule! What specific requirements or interests do you have in mind for this year?"
-        ];
-        
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        return aiResponses[Math.floor(Math.random() * aiResponses.length)];
-      }
+      const API_ENDPOINT = 'http://localhost:8000/chat';
 
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
@@ -66,7 +50,7 @@ const ChatPage = () => {
         },
         body: JSON.stringify({
           message: userMessage,
-          // Add any other required fields for your API
+          user_id: 'default'
         }),
       });
 
@@ -75,13 +59,11 @@ const ChatPage = () => {
       }
 
       const data = await response.json();
-      
-      // Adjust this based on your API response structure
-      return data.response || data.message || data.text || 'No response received';
-      
+      return data.response || 'No response received';
+
     } catch (error) {
       console.error('Error calling API:', error);
-      return "I'm sorry, I'm having trouble connecting right now. Please try again later.";
+      return "I'm sorry, I'm having trouble connecting to the backend. Make sure the backend server is running on http://localhost:8000";
     }
   };
 
