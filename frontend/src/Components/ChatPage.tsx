@@ -28,7 +28,7 @@ const ChatPage = () => {
   useEffect(() => {
     const welcomeMessage: Message = {
       id: 'welcome',
-      text: "Hey User, how's the quarter going?",
+      text: "Hey Nandini, how's the quarter going?",
       sender: 'ai',
       timestamp: new Date()
     };
@@ -137,7 +137,7 @@ const ChatPage = () => {
           {messages.length === 1 ? (
             <div className="initial-chat-layout">
               <div className="greeting-message">
-                Hey User, how's the quarter going?
+                Hey Nandini, how's the quarter going?
               </div>
               <div className="chat-input-container initial">
                 <input
