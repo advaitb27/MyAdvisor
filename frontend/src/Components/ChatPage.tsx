@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, ArrowUp } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -162,7 +163,11 @@ const ChatPage = () => {
                 {messages.slice(1).map((msg) => (
                   <div key={msg.id} className={`message ${msg.sender}`}>
                     <div className="message-bubble">
-                      {msg.text}
+                      {msg.sender === 'ai' ? (
+                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                      ) : (
+                        msg.text
+                      )}
                     </div>
                   </div>
                 ))}

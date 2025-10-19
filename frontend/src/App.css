@@ -643,6 +643,100 @@ body {
   font-style: italic;
 }
 
+/* Markdown styling inside message bubbles */
+.message-bubble p {
+  margin: 0.5rem 0;
+}
+
+.message-bubble p:first-child {
+  margin-top: 0;
+}
+
+.message-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble ul,
+.message-bubble ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.message-bubble li {
+  margin: 0.25rem 0;
+}
+
+.message-bubble strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.message-bubble em {
+  font-style: italic;
+}
+
+.message-bubble code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.message-bubble pre {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+.message-bubble pre code {
+  background: none;
+  padding: 0;
+}
+
+.message-bubble h1,
+.message-bubble h2,
+.message-bubble h3,
+.message-bubble h4 {
+  margin: 0.75rem 0 0.5rem 0;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.message-bubble h1 {
+  font-size: 1.4em;
+}
+
+.message-bubble h2 {
+  font-size: 1.3em;
+}
+
+.message-bubble h3 {
+  font-size: 1.2em;
+}
+
+.message-bubble h4 {
+  font-size: 1.1em;
+}
+
+.message-bubble blockquote {
+  border-left: 3px solid #4a4a4a;
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  color: #cccccc;
+}
+
+.message-bubble a {
+  color: #6b9bd1;
+  text-decoration: underline;
+}
+
+.message-bubble a:hover {
+  color: #8bb3e0;
+}
+
 .chat-input-container {
   display: flex;
   align-items: center;

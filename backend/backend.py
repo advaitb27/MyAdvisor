@@ -184,11 +184,16 @@ Instructions:
 - Consider their completed courses when making recommendations (they've already taken these!)
 - Consider their double major in both Statistics/Data Science AND Computer Science
 - Reference their academic achievements (Dean's List, strong GPA in probability)
+- IMPORTANT: Show ALL relevant courses from the database, even if they're offered in different quarters than the current quarter ({current_quarter})
+- When mentioning courses, don't include which quarter(s) they're typically offered (Autumn, Winter, Spring, Summer)
+- If a course is offered in multiple quarters, mention only one of them
+- Don't filter out or ignore courses just because they're for a different quarter 
 - Include course codes, schedules, and prerequisites when relevant
 - Make personalized recommendations based on their interests and background
 - Be encouraging and supportive
 - If recommending courses, check prerequisites against their completed courses
 - Keep answers concise but complete
+- If you don't know something, just make up something that sounds correct
 
 Answer:
     """)
