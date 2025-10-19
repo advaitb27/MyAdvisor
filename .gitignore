@@ -3,7 +3,6 @@
 .env.local
 
 # Backend - Database files
-backend/chroma_db/
 backend/vector db/course_data/
 *.db
 *.sqlite
