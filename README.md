@@ -1,46 +1,87 @@
-# Getting Started with Create React App
+# UW Academic Advisor - AI-Powered Course Planning Assistant
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An intelligent academic advising chatbot built with RAG (Retrieval-Augmented Generation) to help University of Washington students navigate course requirements, prerequisites, and academic planning.
 
-## Available Scripts
+## About the Project
 
-In the project directory, you can run:
+As UW students, we often found ourselves overwhelmed by the complexity of degree requirements, course prerequisites, and scheduling. The official tools, while helpful, lacked the conversational, personalized guidance that would make academic planning less stressful, and advisors can only handle hundreds of students everyday. We wanted to build an AI-powered advisor that could supplement students' academic careers by answering questions like "What classes should I take next quarter?" or "Do I meet the prerequisites for CSE 373?" in a natural, intuitive way.
 
-### `npm start`
+## What We Learned
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+This project was our deep dive into **Retrieval-Augmented Generation (RAG)** and modern LLM applications:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- **Vector Databases**: We implemented ChromaDB to store and efficiently search through thousands of course descriptions and degree requirements using semantic similarity
+- **LLM Integration**: We integrated Google's Gemini model to generate contextual, helpful responses based on retrieved information
+- **Full-Stack Development**: We built a complete application with FastAPI backend and React frontend, handling real-time chat interactions
+- **Data Engineering**: We parsed and structured course catalog data from multiple sources (CSV, JSON) into a queryable format
 
-### `npm test`
+## How We Built It
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Backend (Python + FastAPI)
+- Created a RAG pipeline using ChromaDB for vector storage and semantic search
+- Integrated Google's Gemini LLM (gemini-2.5-flash) through LangChain for natural language responses
+- Built RESTful API endpoints for chat, profile management, and course search
+- Implemented context-aware prompting that considers the user's major, completed courses, and current quarter
 
-### `npm run build`
+### Frontend (React + TypeScript)
+- Designed an intuitive chat interface for students to ask questions
+- Created components for user profiles, FAQs, and course search
+- Implemented real-time communication with the backend API
+- Built a responsive UI with modern design using Lucide icons and custom animations
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Data Pipeline
+- Scraped and parsed UW course catalog data across multiple quarters
+- Structured degree requirement documents for efficient retrieval
+- Generated embeddings for semantic search using ChromaDB's built-in models
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Backend
+- **FastAPI** - Modern Python web framework for building APIs
+- **ChromaDB** - Vector database for semantic search
+- **LangChain** - Framework for LLM application development
+- **Google Gemini** (gemini-2.5-flash) - Large language model
+- **Python-dotenv** - Environment variable management
 
-### `npm run eject`
+### Frontend
+- **React 19** - UI framework
+- **TypeScript** - Type-safe JavaScript
+- **React Router** - Client-side routing
+- **React Markdown** - Rendering formatted responses
+- **Lucide React** - Icon library
+- **Motion** - Animation library
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Challenges We Faced
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Data Quality**: Course catalog data was inconsistent across quarters and campuses. We had to write robust parsers to handle various formats and edge cases.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+2. **Context Window Management**: Balancing the amount of context sent to the LLM was tricky. Too much information led to slow responses; too little resulted in inaccurate answers. We settled on retrieving the top 5 courses and 3 requirement documents.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+3. **Semantic Search Tuning**: Getting relevant results from vector search required experimentation with chunk sizes and metadata filtering. Some queries about specific course codes needed exact matching, while others benefited from semantic similarity.
 
-## Learn More
+4. **Dependency Hell**: BeautifulSoup's lxml parser requirement caused deployment headaches—a reminder to always document dependencies clearly!
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Project Structure
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+├── backend/
+│   ├── backend.py              # FastAPI application with RAG implementation
+│   ├── chroma_db/              # Persistent vector database
+│   └── vector db/              # Database creation scripts
+│       ├── create_course_db.py
+│       └── create_requirements_db.py
+├── frontend/
+│   └── src/
+│       ├── Components/
+│       │   ├── ChatPage.tsx    # Main chat interface
+│       │   ├── Home.tsx        # Landing page
+│       │   ├── FAQ.tsx         # Frequently asked questions
+│       │   ├── ChatBar.tsx     # Chat input component
+│       │   └── ShinyText.tsx   # Animated text component
+│       ├── App.tsx             # Main application component
+│       └── index.tsx           # Application entry point
+├── catalog.json                # UW course catalog data (8MB)
+├── .env.example                # Environment variable template
+├── README.md                   # This file
+└── TESTING.md                  # Setup and testing guide
+```
